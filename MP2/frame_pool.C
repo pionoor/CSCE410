@@ -1,0 +1,73 @@
+
+/*
+    File: frame_pool.H
+
+    Author: R. Bettati
+            Department of Computer Science
+            Texas A&M University
+    Date  : 12/09/03
+
+    Description: Management of the Free-Frame Pool.
+
+
+*/
+
+/*--------------------------------------------------------------------------*/
+/* DEFINES */
+/*--------------------------------------------------------------------------*/
+
+#define MB * (0x1 << 20)
+#define KB * (0x1 << 10)
+
+#include "frame_pool.H"
+#include "console.H"
+
+unsigned char *FramePool::Freefames = 0;  
+FramePool::FramePool(unsigned long _base_frame_no, unsigned long _nframes, unsigned long _info_frame_no){
+	   
+	   Freefames = (unsigned char)0x200000;
+	   baseFrameNo = _base_frame_no;
+	   nframes = _nframes;
+	   infoFrameNo = _info_frame_no;
+	   
+
+	  
+	   
+	   for(int i = baseFrameNo; i < baseFrameNo + nframes; i++)
+			Freefames[i] = '0';
+			
+	   Freefames[500] = '1'; //for Freefames
+	   Freefames[501] = '1'; //for Freefames
+	   Freefames[503] = '1'; //for Freefames
+	   
+
+		
+   }
+
+
+   unsigned long FramePool::get_frame(){
+	   int i = baseFrameNo;
+	   for(i; i < baseFrameNo + nframes; i++)
+	   {
+		   if(Freefames[i] == '0'){
+	              Freefames[i] = '1';
+		      return i;
+		   }
+	   }
+	   return 0;
+   }
+
+
+   void FramePool::mark_inaccessible(unsigned long _base_frame_no, unsigned long _nframes){
+
+	   for(int i = _base_frame_no; i < _base_frame_no + _nframes; i++){
+		   Freefames[i] = '1';
+	   }
+   }
+
+
+   void FramePool::release_frame(unsigned long _frame_no){
+	   Freefames[_frame_no] = '0';
+   }
+
+
